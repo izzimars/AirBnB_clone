@@ -1,32 +1,102 @@
 #!/bin/python3
+"""
+base_geometry Module
+====================
+
+This module defines the MyList class, which inherits from
+the built-in list class.
+
+BaseGeometry:
+    MyList: A subclass of list with additional functionality.
+
+Public Function:
+    None.
+
+"""
+
+
 import cmd
+from models.base_model import BaseModel
+from models import storage
 
-class MyCmd(cmd.Cmd):
-    def do_hello(self, rest):
-        """Say hello"""
-        print(len("dfgstagfsgf"))
-        print("Hello,", rest)
 
+class HBNBCommand(cmd.Cmd):
+    """
+    BaseGeometry Class
+
+    A base class hat defines all common attributes/methods for
+    other model.
+
+    Public Methods:
+        save: updates the public instance attribute updated_at with
+              the current datetime
+        to_dict: returns a dictionary containing all keys/values
+                 of __dict__ of the instanc
+
+    """
+
+    lst_str = storage.all()
+    prompt = "(hbnb)"
+    model_lst = ["BaseModel"]
+    def do_create(self, line):
+        """ A mehod that print a repesentation of the instance.
+
+        params: None.
+        return type: string.
+        return value: returns a string representation of the instance.
+        """
+
+        if len(line) == 0:
+            print("** class name missing **")
+        elif line not in ["BaseModel"]:
+            print("** class doesn't exist **")
+        else:
+            baseex = BaseModel()
+            baseex.save()
+            print(baseex.id)
+
+    def do_show(self, line):
+        lst = line.split()
+        if len(lst) < 1:
+            print("** class name missing **")
+        elif lst[0] not in HBNBCommand.model_lst:
+            print("** class doesn't exist **")
+        elif len(lst) < 2:
+            print("** instance id missing **")
+        else:
+            inst = lst[0] + "." + lst[1]
+            temp = HBNBCommand.lst_str.get(inst)
+            if inst:
+                print(temp)
+            else:
+                print("** no instance found **")
+
+    def do_destroy(self, line):
     def do_quit(self, rest):
         """Exit the program"""
-        print("Quitting...")
-        return True  # Returning True exits the command loop
+        return True
 
     def default(self, line):
         """Called for any command not recognized"""
         print("Invalid command:", line)
+    
     def completedefault(self, text, line, begidx, endidx):
         """Complete arguments for the hello command"""
         completions = ['hello', 'quit', 'everyone']
         return [c for c in completions if c.startswith(text)]
     
     def do_EOF(self, line):
-        # Check if the line is empty, which typically signifies EOF
-        print(line)
+        """ A mehod that print a repesentation of the instance.
+
+        params: None.
+        return type: string.
+        return value: returns a string representation of the instance.
+        """
+
         if not line:
-            print("Received EOF. Exiting...")
-            return True  # Return True to exit the command loop
-        return False  # Continue the command loop
+            return True
+        return False
+
+
 if __name__ == '__main__':
-    my_cmd = MyCmd()
-    my_cmd.cmdloop() 
+    HBNBCommand().cmdloop()

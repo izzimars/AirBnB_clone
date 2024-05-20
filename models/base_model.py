@@ -16,6 +16,7 @@ Public Function:
 
 import uuid
 from datetime import datetime
+import models
 
 
 class BaseModel:
@@ -41,18 +42,17 @@ class BaseModel:
         return: None.
         """
 
-        if kwargs is not None:
+        self.id = str(uuid.uuid4())
+        self.created_at = datetime.now()
+        self.updated_at = datetime.now()
+        if len(kwargs) > 0:
             for i in kwargs:
                 if i == "created_at" or i == "updated_at":
                     self.__dict__[i] = datetime.fromisoformat(kwargs[i])
                     continue
                 self.__dict__[i] = kwargs[i]
-        if "id" not in kwargs:
-            self.id = str(uuid.uuid4())
-        if "created_at" not in kwargs:
-            self.created_at = datetime.now()
-        if "updated_at" not in kwargs:
-            self.updated_at = datetime.now()
+        else:
+            models.storage.new(self)
 
     def __str__(self):
         """ A mehod that print a repesentation of the instance.
@@ -73,7 +73,8 @@ class BaseModel:
         return: None.
         """
 
-        self.updated_at = datetime.datetime.now()
+        self.updated_at = datetime.now()
+        models.storage.save()
 
     def to_dict(self):
         """ A method that returns a dictionary containing all
@@ -82,7 +83,7 @@ class BaseModel:
         params: None.
         return type: dictionary.
         return value: returns a dictionary containing all keys/values
-                     of __dict__ of the instance.
+                      of __dict__ of the instance.
         """
 
         rdict = self.__dict__.copy()
