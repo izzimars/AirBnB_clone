@@ -54,8 +54,8 @@ class FileStorage:
         params: Object.
         return: None.
         """
-        objkey = obj.__class__.__name__ + "." + obj.id
-        FileStorage.__objects[objkey] = obj
+        ocname = obj.__class__.__name__
+        FileStorage.__objects["{}.{}".format(ocname, obj.id)] = obj
 
     def save(self):
         """ A method that serializes the internal dictionary variable
@@ -64,12 +64,10 @@ class FileStorage:
         params: None.
         return: None.
         """
-        if FileStorage.__file_path == "":
-            return
         odict = FileStorage.__objects
         objdict = {obj: odict[obj].to_dict() for obj in odict.keys()}
-        with open(FileStorage.__file_path, 'w') as fle:
-            json.dump(objdict, fle, indent=4)
+        with open(FileStorage.__file_path, "w") as f:
+            json.dump(objdict, f)
 
     def reload(self):
         """ A method that serializes the JSON file into a python
@@ -78,14 +76,12 @@ class FileStorage:
         params: None.
         return: None.
         """
-        if FileStorage.__file_path == "":
-            return
         try:
-            with open(FileStorage.__file_path, 'r') as fle:
-                objdict = json.load(fle)
+            with open(FileStorage.__file_path) as f:
+                objdict = json.load(f)
                 for o in objdict.values():
                     cls_name = o["__class__"]
                     del o["__class__"]
                     self.new(eval(cls_name)(**o))
-        except (FileNotFoundError):
-            pass
+        except FileNotFoundError:
+            return
